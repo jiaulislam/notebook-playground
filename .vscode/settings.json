@@ -5,5 +5,8 @@
   "python.defaultInterpreterPath": ".\\.venv\\Scripts\\python.exe",
   "editor.formatOnSave": true,
   "python.linting.mypyEnabled": true,
-  "notebook.lineNumbers": "on"
+  "notebook.lineNumbers": "on",
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportPrivateUsage": "none"
+  }
 }
