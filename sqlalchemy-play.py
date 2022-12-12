@@ -1,6 +1,7 @@
 # %%
 from typing import Optional
 import sqlalchemy as sa
+from sqlalchemy.inspection import inspect
 from devtools import debug
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
 from pydantic import BaseModel, Field, NoneStr
@@ -8,7 +9,7 @@ from datetime import datetime
 from faker import Faker
 
 # %%
-engine = sa.create_engine("oracle+cx_oracle://jibon:sys123@LOCAL")
+engine = sa.create_engine("oracle+cx_oracle://jibon:sys123@LOCAL", echo=True)
 
 # %% [markdown]
 # ### DECLARATIVE BASE STYLE 2.0
@@ -183,4 +184,30 @@ with Session(bind=engine) as session:
 
     debug(_customer_orders)
 
+# %%
+db = Session(bind=engine)
+
+query = db.query(Order)
+
+
+# response_range = "{}/{}".format(Order.__name__.lower(), count)
+# %%
+filter_params = ["user_name:roberts"]
+
+conditions = []
+
+for filter in filter_params:
+    for key, *params in [filter.split(":", 1)]:
+        if len(params):
+            debug(params)
+            if key in inspect(Order).columns.keys():
+                conditions.append(
+                    sa.cast(Order.__dict__[key], sa.String).ilike("%" + params[0] + "%")
+                )
+            query = query.filter(sa.or_(*conditions))
+
+
+result = query.all()
+
+debug(result)
 # %%
