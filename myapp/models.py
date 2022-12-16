@@ -34,7 +34,7 @@ class CustomerOrm(Base):
     # Nullable Reference Required ?
     addresses: Mapped[Optional["AddressOrm"]] = relationship(back_populates="customer")
 
-    # orders: Mapped[Optional[list["OrderOrm"]]] = relationship(back_populates="customer")
+    orders: Mapped[Optional[list["OrderOrm"]]] = relationship(back_populates="customer")
 
 
 # Customer Address Model of SQLAlchemy
@@ -85,6 +85,19 @@ product_category_assoc_tbl = sa.Table(
     sa.Column("category_id", sa.ForeignKey("categories.id"), nullable=False),
 )
 
+product_order_assoc_tbl = sa.Table(
+    "product_order_assoc",
+    Base.metadata,
+    sa.Column(
+        "id",
+        sa.Integer,
+        sa.Identity(start=1, maxvalue=MAX_INCREMENT_VALUE, cycle=True),
+        primary_key=True,
+    ),
+    sa.Column("product_id", sa.ForeignKey("products.id"), nullable=False),
+    sa.Column("order_id", sa.ForeignKey("orderes.id"), nullable=False),
+)
+
 
 class TagOrm(Base):
     __tablename__ = "tags"
@@ -121,6 +134,11 @@ class ProductOrm(Base):
     )
     code: Mapped[str] = mapped_column(sa.String(30))
     name: Mapped[str] = mapped_column(sa.String(80))
+
+    orders: Mapped[Optional[set["OrderOrm"]]] = relationship(
+        secondary=product_order_assoc_tbl, back_populates="products"
+    )
+
     tags: Mapped[Optional[set["TagOrm"]]] = relationship(
         secondary=product_tag_assoc_tbl, back_populates="products"
     )
@@ -130,32 +148,21 @@ class ProductOrm(Base):
     )
 
 
-# class ProductCategoryOrm(Base):
-#     __tablename__ = "products_categories_assoc"
-#     id: Mapped[int] = mapped_column(
-#         sa.Identity(start=1, nomaxvalue=True), primary_key=False
-#     )
-#     product_id: Mapped[int] = mapped_column(
-#         sa.ForeignKey("products.id"), nullable=False
-#     )
-#     category_id: Mapped[int] = mapped_column(
-#         sa.ForeignKey("categories.id"), nullable=False
-#     )
+#  Customer Order Model of SQLAlchemy
+class OrderOrm(Base):
+    __tablename__ = "orderes"
 
+    id: Mapped[int] = mapped_column(
+        sa.Identity(start=1, maxvalue=MAX_INCREMENT_VALUE, cycle=True), primary_key=True
+    )
+    invoice_no: Mapped[str] = mapped_column(sa.String(30), nullable=False)
 
-# #  Customer Order Model of SQLAlchemy
-# class OrderOrm(Base):
-#     __tablename__ = "orderes"
+    customer_id: Mapped["CustomerOrm"] = mapped_column(
+        sa.ForeignKey("customers.id"), nullable=False
+    )
 
-#     id: Mapped[int] = mapped_column(
-#         sa.Identity(start=1, nomaxvalue=True), primary_key=True
-#     )
-#     order_no: Mapped[str] = mapped_column(sa.String(30), nullable=False)
-#     customer_id: Mapped["CustomerOrm"] = mapped_column(
-#         sa.ForeignKey("customers.id"), nullable=False
-#     )
-#     product_id: Mapped["ProductOrm"] = mapped_column(
-#         sa.ForeignKey("products.id"), nullable=False
-#     )
+    products: Mapped[set["ProductOrm"]] = relationship(
+        secondary=product_order_assoc_tbl, back_populates="orders"
+    )
 
-#     customer: Mapped["CustomerOrm"] = relationship(back_populates="orders")
+    customer: Mapped["CustomerOrm"] = relationship(back_populates="orders")
