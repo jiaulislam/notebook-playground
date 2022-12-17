@@ -34,7 +34,7 @@ class CustomerOrm(Base):
     # Nullable Reference Required ?
     addresses: Mapped[Optional["AddressOrm"]] = relationship(back_populates="customer")
 
-    orders: Mapped[Optional[list["OrderOrm"]]] = relationship(back_populates="customer")
+    orders: Mapped[list["OrderOrm"]] = relationship(back_populates="customer")
 
 
 # Customer Address Model of SQLAlchemy
@@ -107,7 +107,7 @@ class TagOrm(Base):
     )
     name: Mapped[str] = mapped_column(sa.String(30))
 
-    products: Mapped[Optional[set["ProductOrm"]]] = relationship(
+    products: Mapped[set["ProductOrm"]] = relationship(
         secondary=product_tag_assoc_tbl, back_populates="tags"
     )
 
@@ -120,7 +120,7 @@ class CategoryOrm(Base):
     )
     title: Mapped[str] = mapped_column(sa.String(30), nullable=False)
 
-    products: Mapped[Optional[set["ProductOrm"]]] = relationship(
+    products: Mapped[set["ProductOrm"]] = relationship(
         secondary=product_category_assoc_tbl, back_populates="categories"
     )
 
@@ -135,15 +135,15 @@ class ProductOrm(Base):
     code: Mapped[str] = mapped_column(sa.String(30))
     name: Mapped[str] = mapped_column(sa.String(80))
 
-    orders: Mapped[Optional[set["OrderOrm"]]] = relationship(
+    orders: Mapped[set["OrderOrm"]] = relationship(
         secondary=product_order_assoc_tbl, back_populates="products"
     )
 
-    tags: Mapped[Optional[set["TagOrm"]]] = relationship(
+    tags: Mapped[set["TagOrm"]] = relationship(
         secondary=product_tag_assoc_tbl, back_populates="products"
     )
 
-    categories: Mapped[Optional[set["CategoryOrm"]]] = relationship(
+    categories: Mapped[set["CategoryOrm"]] = relationship(
         secondary=product_category_assoc_tbl, back_populates="products"
     )
 
