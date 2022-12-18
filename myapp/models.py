@@ -1,3 +1,5 @@
+from datetime import datetime
+import pytz
 from typing import Optional
 import sqlalchemy as sa
 from sqlalchemy.inspection import inspect
@@ -147,6 +149,8 @@ class ProductOrm(Base):
         secondary=product_category_assoc_tbl, back_populates="products"
     )
 
+    order_qty: Mapped[Optional["QuantityOrm"]] = relationship(back_populates="product")
+
 
 #  Customer Order Model of SQLAlchemy
 class OrderOrm(Base):
@@ -161,8 +165,28 @@ class OrderOrm(Base):
         sa.ForeignKey("customers.id"), nullable=False
     )
 
+    created_at: Mapped[datetime] = mapped_column(
+        insert_default=datetime.now(tz=pytz.timezone("Asia/Dhaka")), nullable=False
+    )
+
     products: Mapped[set["ProductOrm"]] = relationship(
         secondary=product_order_assoc_tbl, back_populates="orders"
     )
 
     customer: Mapped["CustomerOrm"] = relationship(back_populates="orders")
+
+
+class QuantityOrm(Base):
+    __tablename__ = "product_order_quantities"
+
+    id: Mapped[int] = mapped_column(
+        sa.Identity(start=1, maxvalue=MAX_INCREMENT_VALUE, cycle=True), primary_key=True
+    )
+
+    qty: Mapped[int] = mapped_column(nullable=False)
+
+    product_id: Mapped[int] = mapped_column(
+        sa.ForeignKey("products.id"), nullable=False
+    )
+
+    product: Mapped["ProductOrm"] = relationship(back_populates="order_qty")
