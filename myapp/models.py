@@ -101,6 +101,7 @@ product_order_assoc_tbl = sa.Table(
 )
 
 
+# Product Tags Entity
 class TagOrm(Base):
     __tablename__ = "tags"
 
@@ -114,6 +115,7 @@ class TagOrm(Base):
     )
 
 
+# Product Category Entity
 class CategoryOrm(Base):
     __tablename__ = "categories"
 
@@ -176,6 +178,7 @@ class OrderOrm(Base):
     customer: Mapped["CustomerOrm"] = relationship(back_populates="orders")
 
 
+# Products Order Quantity Entity
 class QuantityOrm(Base):
     __tablename__ = "product_order_quantities"
 
@@ -184,6 +187,8 @@ class QuantityOrm(Base):
     )
 
     qty: Mapped[int] = mapped_column(nullable=False)
+
+    order_id: Mapped[int] = mapped_column(sa.ForeignKey("orderes.id"), nullable=False)
 
     product_id: Mapped[int] = mapped_column(
         sa.ForeignKey("products.id"), nullable=False
